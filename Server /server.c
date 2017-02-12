@@ -57,32 +57,34 @@ int main(int argc, char *argv[]) {
         set to default port if no arguments were supplied  */
 
     if ( argc == 2 ) {
-	port = strtol(argv[1], &endptr, 0);
-	if ( *endptr ) {
-	    fprintf(stderr, "ECHOSERV: Invalid port number.\n");
-	    exit(EXIT_FAILURE);
-	}
+	   udp_port = strtol(argv[1], &endptr, 0);
+    	if ( *endptr ) {
+    	    fprintf(stderr, "ECHOSERV: Invalid port number.\n");
+    	    exit(EXIT_FAILURE);
+    	}
     }
     else if ( argc < 2 ) {
-	port = ECHO_PORT;
+	   udpPort = ECHO_PORT;
     }
     else {
-	fprintf(stderr, "ECHOSERV: Invalid arguments.\n");
-	exit(EXIT_FAILURE);
+	   fprintf(stderr, "ECHOSERV: Invalid arguments.\n");
+	   exit(EXIT_FAILURE);
     }
 
 	
     /*  Create the listening socket for TCP  */
 
+    /*
     if ( (list_TCP = socket(AF_INET, SOCK_STREAM, 0)) < 0 ) {
 	fprintf(stderr, "ECHOSERV: Error creating listening socket.\n");
 	exit(EXIT_FAILURE);
     }
 
     /* Create the listening socket for UDP */
-    if ( (list_UDP = socket(AF_INET, SOCK_STREAM, 0)) < 0 ) {
-    fprintf(stderr, "ECHOSERV: Error creating listening socket.\n");
-    exit(EXIT_FAILURE);
+    
+    if ( (list_UDP = socket(AF_INET, SOCK_DGRAM, 0)) < 0 ) {
+        fprintf(stderr, "ECHOSERV: Error creating listening socket.\n");
+        exit(EXIT_FAILURE);
     }
 
 
@@ -99,7 +101,7 @@ int main(int argc, char *argv[]) {
     /*  Bind our socket addresss to the 
 	listening socket, and call listen()  */
 
-    if ( bind(list_TCP, (struct sockaddr *) &servaddr, sizeof(servaddr)) < 0 ) {
+    /*if ( bind(list_TCP, (struct sockaddr *) &servaddr, sizeof(servaddr)) < 0 ) {
 	fprintf(stderr, "ECHOSERV: Error calling bind()\n");
 	exit(EXIT_FAILURE);
     }
@@ -109,10 +111,16 @@ int main(int argc, char *argv[]) {
 	exit(EXIT_FAILURE);
     }
 
+    
+
+    } */
+
+
+
     /* Bind UDP on the socket */
     if ( bind(list_UDP, (struct sockaddr *) &servaddr, sizeof(servaddr)) < 0 ) {
-    fprintf(stderr, "ECHOSERV: Error calling bind()\n");
-    exit(EXIT_FAILURE);
+        fprintf(stderr, "ECHOSERV: Error calling bind()\n");
+        exit(EXIT_FAILURE);
     }
 
     
@@ -123,10 +131,10 @@ int main(int argc, char *argv[]) {
 
 	/*  Wait for a connection, then accept() it  */
 
-	if ( (conn_s = accept(list_TCP, NULL, NULL) ) < 0 ) {
+	/* if ( (conn_s = accept(list_TCP, NULL, NULL) ) < 0 ) {
 	    fprintf(stderr, "ECHOSERV: Error calling accept()\n");
 	    exit(EXIT_FAILURE);
-	}
+	} */
 
    
 
@@ -146,7 +154,7 @@ int main(int argc, char *argv[]) {
      
         int temp_1 = strncmp(buffer, "CAP", 3);
         if (temp_1 == 0){
-            memcpy(capital_buffer, buffer + 4, strlen(buffer) - 6);
+            strncpy(capital_buffer, buffer + 4, strlen(buffer) - 4);
             //fprintf(stderr, "Real message: %s\n", capital_buffer);
             
         
