@@ -27,7 +27,7 @@
 
 /*  Function declarations  */
 
-int ParseCmdLine(int argc, char *argv[], char **szAddress, char **szPort);
+int ParseCmdLine(int argc, char *argv[], char **szAddress, char **tcpPort, char **udpPort);
 
 
 /*  main()  */
@@ -42,7 +42,8 @@ int main(int argc, char *argv[]) {
     struct 	  sockaddr_in clientaddr;
     char      buffer[MAX_LINE];      /*  character buffer          */
     char     *szAddress; //(char*) malloc(4*sizeof(char));             /*  Holds remote IP address   */
-    char     *szPort; // (char*) malloc(4*sizeof(char));                /*  Holds remote port         */
+    char 	 *udpPort;
+    char     *tcpPort; // (char*) malloc(4*sizeof(char));                /*  Holds remote port         */
     char     *endptr;                /*  for strtol()              */
     char      buffer_send[MAX_LINE];
     char      capital_buffer[MAX_LINE];
@@ -51,10 +52,14 @@ int main(int argc, char *argv[]) {
 
     /*  Get command line arguments  */
 
-    ParseCmdLine(argc, argv, &szAddress, &szPort);
+    ParseCmdLine(argc, argv, &szAddress, &tcpPort, &udpPort);
 
+
+    
+    /* TCP Connection */ 
 
     /*  Set the remote port  */
+    /*
     port = strtol(szPort, &endptr, 0);
     if ( *endptr ) {
 	printf("ECHOCLNT: Invalid port supplied.\n");
@@ -63,18 +68,20 @@ int main(int argc, char *argv[]) {
 	
 
     /*  Create the listening socket for TCP  */
+    /*
 
     if ( (conn_TCP = socket(AF_INET, SOCK_STREAM, 0)) < 0 ) {
 	fprintf(stderr, "ECHOCLNT: Error creating listening socket.\n");
 	exit(EXIT_FAILURE);
     }
+    */
 
 
     /* Create the listening socket for UDP */
 
     if ( (conn_UDP = socket(AF_INET, SOCK_STREAM, 0)) < 0 ) {
-	fprintf(stderr, "ECHOCLNT: Error creating listening socket.\n");
-	exit(EXIT_FAILURE);
+		fprintf(stderr, "ECHOCLNT: Error creating listening socket.\n");
+		exit(EXIT_FAILURE);
     }
 
 
@@ -83,7 +90,7 @@ int main(int argc, char *argv[]) {
 
     memset(&servaddr, 0, sizeof(servaddr));
     servaddr.sin_family      = AF_INET;
-    servaddr.sin_port        = htons(port);
+    servaddr.sin_port        = htons(udpPort);
 
 
     /*  Set the remote IP address  */
@@ -95,11 +102,12 @@ int main(int argc, char *argv[]) {
 
     
     /*  connect() to the remote echo server  */
-
+    /*
     if ( connect(conn_TCP, (struct sockaddr *) &servaddr, sizeof(servaddr) ) < 0 ) {
 	printf("ECHOCLNT: Error calling connect()\n");
 	exit(EXIT_FAILURE);
     }
+    */
 
 
     /*  Get string to echo from user  */
@@ -128,7 +136,6 @@ int main(int argc, char *argv[]) {
 
             strcpy(buffer_send, "CAP\n");
             strcat(buffer_send,buffer);
-            strcat(buffer_send,"\n");
             
 
             sendto(conn_UDP, buffer_send, strlen(buffer_send),
@@ -212,18 +219,11 @@ int main(int argc, char *argv[]) {
 }
 
 
-int ParseCmdLine(int argc, char *argv[], char **szAddress, char **szPort) {
-
-    
-
-    
-	
-	    *szAddress = argv[1];
-	
-	
-	    *szPort = argv[2];
-	
-	
+int ParseCmdLine(int argc, char *argv[], char **szAddress, char **tcpPort, char **udpPort) {	
+	    *tcpPort = argv[1];
+	    *szAddress = argv[2];
+		
+		*udpPort = argv[3];
 	
 
     return 0;
